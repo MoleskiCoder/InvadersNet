@@ -10,7 +10,7 @@ namespace Invaders
         {
         }
 
-        public bool DebugMode { get; set; } = true;
+        public bool DebugMode { get; set; } = false;
 
         public bool ProfileMode { get; set; } = false;
 
