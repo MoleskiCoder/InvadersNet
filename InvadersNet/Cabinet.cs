@@ -144,6 +144,8 @@ namespace Invaders
                         }
                     }
                 }
+
+                this.Motherboard.TriggerInterruptScanLine224();
             }
             finally
             {
