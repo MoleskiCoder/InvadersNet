@@ -139,36 +139,37 @@ namespace Invaders
 
         public override MemoryMapping Mapping(ushort absolute)
         {
-            absolute &= 0b0011111111111111;
+            const ushort mask = 0b0011111111111111;
+            absolute &= mask;
 
             if (absolute < 0x800)
             {
-                return new MemoryMapping(this.romH, 0, Mask.Mask16, AccessLevel.ReadOnly);
+                return new MemoryMapping(this.romH, 0, mask, AccessLevel.ReadOnly);
             }
 
             if (absolute < 0x1000)
             {
-                return new MemoryMapping(this.romG, 0x0800, Mask.Mask16, AccessLevel.ReadOnly);
+                return new MemoryMapping(this.romG, 0x0800, mask, AccessLevel.ReadOnly);
             }
 
             if (absolute < 0x1800)
             {
-                return new MemoryMapping(this.romF, 0x0800 * 2, Mask.Mask16, AccessLevel.ReadOnly);
+                return new MemoryMapping(this.romF, 0x0800 * 2, mask, AccessLevel.ReadOnly);
             }
 
             if (absolute < 0x2000)
             {
-                return new MemoryMapping(this.romE, 0x0800 * 3, Mask.Mask16, AccessLevel.ReadOnly);
+                return new MemoryMapping(this.romE, 0x0800 * 3, mask, AccessLevel.ReadOnly);
             }
 
             if (absolute < 0x2400)
             {
-                return new MemoryMapping(this.workRAM, 0x2000, Mask.Mask16, AccessLevel.ReadWrite);
+                return new MemoryMapping(this.workRAM, 0x2000, mask, AccessLevel.ReadWrite);
             }
 
             if (absolute < 0x4000)
             {
-                return new MemoryMapping(this.VRAM, 0x2400, Mask.Mask16, AccessLevel.ReadWrite);
+                return new MemoryMapping(this.VRAM, 0x2400, mask, AccessLevel.ReadWrite);
             }
 
             throw new InvalidOperationException("Invalid memory mapping.");
