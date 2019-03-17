@@ -4,8 +4,11 @@
 
 namespace Invaders
 {
+    using System.Collections.Generic;
+    using System.Linq;
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Graphics;
+    using Microsoft.Xna.Framework.Input;
 
     public class Cabinet : Game
     {
@@ -13,6 +16,7 @@ namespace Invaders
         private readonly ColourPalette palette = new ColourPalette();
         private readonly Color[] pixels = new Color[DisplayWidth * DisplayHeight];
         private readonly Rectangle displayRectangle = new Rectangle(0, 0, DisplayWidth * PixelSize, DisplayHeight * PixelSize);
+        private readonly List<Keys> pressed = new List<Keys>();
 
         private SpriteBatch spriteBatch;
         private Texture2D bitmapTexture;
@@ -63,10 +67,100 @@ namespace Invaders
         protected override void Update(GameTime gameTime)
         {
             this.RunFrame();
+            this.CheckKeyboard();
             base.Update(gameTime);
         }
 
         protected virtual void RunFrame() => this.cycles = this.DrawFrame(this.cycles);
+
+        private void CheckKeyboard()
+        {
+            var state = Keyboard.GetState();
+            var current = new HashSet<Keys>(state.GetPressedKeys());
+
+            var newlyReleased = this.pressed.Except(current);
+            this.UpdateReleasedKeys(newlyReleased);
+
+            var newlyPressed = current.Except(this.pressed);
+            this.UpdatePressedKeys(newlyPressed);
+
+            this.pressed.Clear();
+            this.pressed.AddRange(current);
+        }
+
+        private void UpdatePressedKeys(IEnumerable<Keys> keys)
+        {
+            foreach (var key in keys)
+            {
+                switch (key)
+                {
+                    case Keys.D1:
+                        this.Motherboard.Press1P();
+                        break;
+                    case Keys.D2:
+                        this.Motherboard.Press2P();
+                        break;
+                    case Keys.D3:
+                        this.Motherboard.PressCredit();
+                        break;
+                    case Keys.Z:
+                        this.Motherboard.PressLeft1P();
+                        break;
+                    case Keys.X:
+                        this.Motherboard.PressRight1P();
+                        break;
+                    case Keys.OemPipe:
+                        this.Motherboard.PressShoot1P();
+                        break;
+                    case Keys.OemComma:
+                        this.Motherboard.PressLeft2P();
+                        break;
+                    case Keys.OemPeriod:
+                        this.Motherboard.PressRight2P();
+                        break;
+                    case Keys.OemQuestion:
+                        this.Motherboard.PressShoot2P();
+                        break;
+                }
+            }
+        }
+
+        private void UpdateReleasedKeys(IEnumerable<Keys> keys)
+        {
+            foreach (var key in keys)
+            {
+                switch (key)
+                {
+                    case Keys.D1:
+                        this.Motherboard.Release1P();
+                        break;
+                    case Keys.D2:
+                        this.Motherboard.Release2P();
+                        break;
+                    case Keys.D3:
+                        this.Motherboard.ReleaseCredit();
+                        break;
+                    case Keys.Z:
+                        this.Motherboard.ReleaseLeft1P();
+                        break;
+                    case Keys.X:
+                        this.Motherboard.ReleaseRight1P();
+                        break;
+                    case Keys.OemPipe:
+                        this.Motherboard.ReleaseShoot1P();
+                        break;
+                    case Keys.OemComma:
+                        this.Motherboard.ReleaseLeft2P();
+                        break;
+                    case Keys.OemPeriod:
+                        this.Motherboard.ReleaseRight2P();
+                        break;
+                    case Keys.OemQuestion:
+                        this.Motherboard.ReleaseShoot2P();
+                        break;
+                }
+            }
+        }
 
         private int DrawFrame(int prior)
         {
