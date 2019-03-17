@@ -4,6 +4,7 @@
 
 namespace Invaders
 {
+    using System;
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Graphics;
 
@@ -12,7 +13,9 @@ namespace Invaders
         private readonly Configuration configuration;
         private readonly GraphicsDeviceManager graphics;
         private readonly ColourPalette palette = new ColourPalette();
+        private readonly Color[] pixels = new Color[DisplayWidth * DisplayHeight];
         private SpriteBatch spriteBatch;
+        private Texture2D bitmapTexture;
 
         private int cycles = 0;
         private int fps;
@@ -34,9 +37,9 @@ namespace Invaders
 
         public Board Motherboard { get; }
 
-        private static int DisplayWidth => (int)Board.RasterSize.Width;
+        private static int DisplayWidth => (int)Board.RasterSize.Height;
 
-        private static int DisplayHeight => (int)Board.RasterSize.Height;
+        private static int DisplayHeight => (int)Board.RasterSize.Width;
 
         private int PixelSize => this.Motherboard.PixelSize;
 
@@ -47,8 +50,9 @@ namespace Invaders
             {
                 if (disposing)
                 {
-                    this.graphics?.Dispose();
+                    this.bitmapTexture?.Dispose();
                     this.spriteBatch?.Dispose();
+                    this.graphics?.Dispose();
                 }
 
                 this.disposed = true;
@@ -60,6 +64,7 @@ namespace Invaders
             this.spriteBatch = new SpriteBatch(this.GraphicsDevice);
             this.palette.Load(this.GraphicsDevice);
             this.ChangeResolution(DisplayWidth, DisplayHeight);
+            this.bitmapTexture = new Texture2D(this.GraphicsDevice, DisplayWidth, DisplayHeight);
             this.Motherboard.Initialize();
             this.Motherboard.RaisePOWER();
         }
@@ -84,14 +89,16 @@ namespace Invaders
             var renderEven = !interlaced || (interlaced && (this.frames % 2 == 0));
 
             var blackColour = this.palette.Colour(ColourPalette.ColourIndex.Black);
-            var blackPixel = this.palette.Pixel(ColourPalette.ColourIndex.Black);
-            this.graphics.GraphicsDevice.Clear(this.palette.Colour(ColourPalette.ColourIndex.Black));
+            if (interlaced)
+            {
+                this.graphics.GraphicsDevice.Clear(this.palette.Colour(ColourPalette.ColourIndex.Black));
+            }
 
             this.spriteBatch.Begin();
             try
             {
                 // This code handles the display rotation
-                const int bytesPerScanLine = (int)Board.RasterSize.Width >> 3;
+                var bytesPerScanLine = (int)Board.RasterSize.Width >> 3;
                 for (var inputY = 0; inputY < (int)Board.RasterSize.Height; ++inputY)
                 {
                     if (inputY == 96)
@@ -130,22 +137,23 @@ namespace Invaders
                                 {
                                     var colourIndex = (int)ColourPalette.CalculateColour(outputX, outputY);
                                     var colour = this.palette.Colour(colourIndex);
-                                    var pixel = this.palette.Pixel(colourIndex);
-                                    this.spriteBatch.Draw(pixel, new Rectangle(outputX, outputY, this.PixelSize, this.PixelSize), colour);
+                                    this.pixels[outputPixel] = colour;
                                 }
                             }
                             else
                             {
                                 var colourIndex = (int)ColourPalette.CalculateColour(outputX, outputY);
                                 var colour = inputPixel == 0 ? blackColour : this.palette.Colour(colourIndex);
-                                var pixel = inputPixel == 0 ? blackPixel : this.palette.Pixel(colourIndex);
-                                this.spriteBatch.Draw(pixel, new Rectangle(outputX, outputY, this.PixelSize, this.PixelSize), colour);
+                                this.pixels[outputPixel] = colour;
                             }
                         }
                     }
                 }
 
                 this.Motherboard.TriggerInterruptScanLine224();
+
+                this.bitmapTexture.SetData(this.pixels);
+                this.spriteBatch.Draw(this.bitmapTexture, new Rectangle(0, 0, DisplayWidth * this.PixelSize, DisplayHeight * this.PixelSize), this.palette.Colour(ColourPalette.ColourIndex.White));
             }
             finally
             {

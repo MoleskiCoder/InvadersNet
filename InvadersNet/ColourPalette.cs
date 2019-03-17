@@ -4,16 +4,12 @@
 
 namespace Invaders
 {
-    using System;
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Graphics;
 
-    public class ColourPalette : IDisposable
+    public class ColourPalette
     {
         private readonly Color[] colours = new Color[4];
-        private readonly Texture2D[] pixels = new Texture2D[4];
-
-        private bool disposed = false;
 
         public enum ColourIndex
         {
@@ -62,47 +58,12 @@ namespace Invaders
 
         public Color Colour(int index) => this.colours[index];
 
-        public Texture2D Pixel(ColourIndex index) => this.Pixel((int)index);
-
-        public Texture2D Pixel(int index) => this.pixels[index];
-
         public void Load(GraphicsDevice hardware)
         {
             this.colours[0] = Color.Black;
             this.colours[1] = Color.White;
             this.colours[2] = Color.Red;
             this.colours[3] = Color.Green;
-
-            for (var i = 0; i < 4; ++i)
-            {
-                this.pixels[i] = new Texture2D(hardware, 1, 1);
-                this.pixels[i].SetData<Color>(new Color[] { this.colours[i] });
-            }
-        }
-
-        public void Dispose()
-        {
-            this.Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!this.disposed)
-            {
-                if (disposing)
-                {
-                    if (this.pixels != null)
-                    {
-                        foreach (var pixel in this.pixels)
-                        {
-                            pixel.Dispose();
-                        }
-                    }
-                }
-
-                this.disposed = true;
-            }
         }
     }
 }
