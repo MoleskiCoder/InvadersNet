@@ -21,8 +21,6 @@ namespace Invaders
             '?', '_', '_', '_', '_', '_', '_', '-',
         };
 
-        private readonly Configuration configuration;
-
         private readonly Rom romE = new Rom(0x800);
         private readonly Rom romF = new Rom(0x800);
         private readonly Rom romG = new Rom(0x800);
@@ -56,9 +54,8 @@ namespace Invaders
         private byte preSound1 = 0;
         private byte preSound2 = 0;
 
-        public Board(Configuration configuration)
+        public Board()
         {
-            this.configuration = configuration;
             this.CPU = new Intel8080(this, this.ports);
             this.disassembler = new Disassembler(this);
         }
@@ -130,15 +127,15 @@ namespace Invaders
             Off = 1,
         }
 
+        public static int CyclesPerScanLine => Configuration.CyclesPerRasterScan / (int)RasterSize.Height;
+
+        public static int PixelSize => Configuration.PixelSize;
+
         public Intel8080 CPU { get; }
 
         public Ram VRAM { get; } = new Ram(0x1c00);
 
         public bool CocktailModeControl { get; private set; } = false;
-
-        public int CyclesPerScanLine => this.configuration.CyclesPerRasterScan / (int)RasterSize.Height;
-
-        public int PixelSize => this.configuration.PixelSize;
 
         public override MemoryMapping Mapping(ushort absolute)
         {
@@ -179,7 +176,7 @@ namespace Invaders
 
         public override void Initialize()
         {
-            var romDirectory = this.configuration.RomDirectory;
+            var romDirectory = Configuration.RomDirectory;
 
             this.romE.Load(romDirectory + "/invaders.e");
             this.romF.Load(romDirectory + "/invaders.f");
@@ -190,7 +187,7 @@ namespace Invaders
             this.ports.WrittenPort += this.Ports_WrittenPort_SpaceInvaders;
             this.ports.ReadingPort += this.Ports_ReadingPort_SpaceInvaders;
 
-            if (this.configuration.DebugMode)
+            if (Configuration.DebugMode)
             {
                 this.CPU.ExecutingInstruction += this.CPU_ExecutingInstruction_Debug;
             }
@@ -222,11 +219,11 @@ namespace Invaders
             this.CPU.INT().Lower();
         }
 
-        public int RunScanLine(int prior) => this.CPU.Run(this.CyclesPerScanLine - prior);
+        public int RunScanLine(int prior) => this.CPU.Run(CyclesPerScanLine - prior);
 
-        public int RunRasterScan(int prior) => this.CPU.Run(this.configuration.CyclesPerRasterScan - prior);
+        public int RunRasterScan(int prior) => this.CPU.Run(Configuration.CyclesPerRasterScan - prior);
 
-        public int RunVerticalBlank(int prior) => this.CPU.Run(this.configuration.CyclesPerVerticalBlank - prior);
+        public int RunVerticalBlank(int prior) => this.CPU.Run(Configuration.CyclesPerVerticalBlank - prior);
 
         public int RunFrame(int prior)
         {
@@ -329,7 +326,7 @@ namespace Invaders
                     this.shiftData.High = value;
                     break;
                 case (byte)OutputPorts.WATCHDOG:
-                    if (this.configuration.ShowWatchdogOutput)
+                    if (Configuration.ShowWatchdogOutput)
                     {
                         System.Console.Out.Write(value < 64 ? CharacterSet[value] : '_');
                     }

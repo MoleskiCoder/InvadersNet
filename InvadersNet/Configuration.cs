@@ -4,40 +4,32 @@
 
 namespace Invaders
 {
-    public class Configuration
+    public static class Configuration
     {
-        public Configuration()
-        {
-        }
+        public static bool DebugMode { get; set; } = false;
 
-        public bool DebugMode { get; set; } = false;
+        public static bool ProfileMode { get; set; } = false;
 
-        public bool ProfileMode { get; set; } = false;
+        public static bool DrawGraphics { get; set; } = true;
 
-        public bool DrawGraphics { get; set; } = true;
+        public static int PixelSize { get; set; } = 2;
 
-        public int PixelSize { get; set; } = 2;
+        public static bool ShowWatchdogOutput { get; set; } = false;
 
-        public bool ShowWatchdogOutput { get; set; } = false;
+        public static int FramesPerSecond { get; set; } = 60;
 
-        public bool Interlaced { get; set; } = false;
+        public static int CyclesPerFrame => CyclesPerSecond / FramesPerSecond;
 
-        public bool VsyncLocked { get; set; } = true;
+        public static int CyclesPerVerticalBlank => CyclesPerFrame / 6;
 
-        public int FramesPerSecond { get; set; } = 60;
+        public static int CyclesPerRasterScan => CyclesPerFrame - CyclesPerVerticalBlank;
 
-        public int CyclesPerFrame => this.CyclesPerSecond / this.FramesPerSecond;
+        public static int CyclesPerSecond { get; set; } = 2000000;
 
-        public int CyclesPerVerticalBlank => this.CyclesPerFrame / 6;
+        public static bool CocktailTable { get; set; } = false;
 
-        public int CyclesPerRasterScan => this.CyclesPerFrame - this.CyclesPerVerticalBlank;
+        public static string RomDirectory { get; } = @"..\..\..\roms";
 
-        public int CyclesPerSecond { get; set; } = 2000000;
-
-        public bool CocktailTable { get; set; } = false;
-
-        public string RomDirectory { get; } = @"..\..\..\roms";
-
-        public string SoundDirectory { get; } = "sounds";
+        public static string SoundDirectory { get; } = "sounds";
     }
 }

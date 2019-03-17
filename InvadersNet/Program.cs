@@ -8,8 +8,7 @@ namespace Invaders
     {
         public static void Main(string[] args)
         {
-            var configuration = new Configuration();
-            using (var game = new Cabinet(configuration))
+            using (var game = new Cabinet())
             {
                 game.Run();
             }
