@@ -58,7 +58,7 @@ namespace Invaders
 
         public Color Colour(int index) => this.colours[index];
 
-        public void Load(GraphicsDevice hardware)
+        public void Load()
         {
             this.colours[0] = Color.Black;
             this.colours[1] = Color.White;

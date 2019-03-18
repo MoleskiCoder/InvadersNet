@@ -57,7 +57,7 @@ namespace Invaders
         protected override void LoadContent()
         {
             this.spriteBatch = new SpriteBatch(this.GraphicsDevice);
-            this.palette.Load(this.GraphicsDevice);
+            this.palette.Load();
             this.ChangeResolution(DisplayWidth, DisplayHeight);
             this.bitmapTexture = new Texture2D(this.GraphicsDevice, DisplayWidth, DisplayHeight);
             this.Motherboard.Initialize();
