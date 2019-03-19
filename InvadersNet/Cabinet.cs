@@ -12,11 +12,17 @@ namespace Invaders
 
     public class Cabinet : Game
     {
+        private const float ScreenRotation = -(float)System.Math.PI / 2f;
+
         private readonly GraphicsDeviceManager graphics;
         private readonly ColourPalette palette = new ColourPalette();
         private readonly Color[] pixels = new Color[DisplayWidth * DisplayHeight];
-        private readonly Rectangle displayRectangle = new Rectangle(0, 0, DisplayWidth * PixelSize, DisplayHeight * PixelSize);
         private readonly List<Keys> pressed = new List<Keys>();
+        private readonly Vector2 texturePosition = new Vector2(0, DisplayWidth * 2);
+        private readonly Vector2 textureOrigin = new Vector2(0, 0);
+        private readonly float textureScale = 2.0f;
+        private readonly SpriteEffects flipped = SpriteEffects.FlipHorizontally | SpriteEffects.FlipVertically;
+        private readonly SpriteEffects unflipped = SpriteEffects.None;
 
         private SpriteBatch spriteBatch;
         private Texture2D bitmapTexture;
@@ -32,9 +38,9 @@ namespace Invaders
 
         public Board Motherboard { get; } = new Board();
 
-        private static int DisplayWidth => (int)Board.RasterSize.Height;
+        private static int DisplayWidth => (int)Board.RasterSize.Width;
 
-        private static int DisplayHeight => (int)Board.RasterSize.Width;
+        private static int DisplayHeight => (int)Board.RasterSize.Height;
 
         private static int PixelSize => Board.PixelSize;
 
@@ -58,7 +64,7 @@ namespace Invaders
         {
             this.spriteBatch = new SpriteBatch(this.GraphicsDevice);
             this.palette.Load();
-            this.ChangeResolution(DisplayWidth, DisplayHeight);
+            this.ChangeResolution(DisplayHeight, DisplayWidth); // Note the reversed layout: 90 degree rotation of display
             this.bitmapTexture = new Texture2D(this.GraphicsDevice, DisplayWidth, DisplayHeight);
             this.Motherboard.Initialize();
             this.Motherboard.RaisePOWER();
@@ -170,32 +176,28 @@ namespace Invaders
             this.spriteBatch.Begin();
             try
             {
-                // This code handles the display rotation
-                const int bytesPerScanLine = (int)Board.RasterSize.Width >> 3;
-                for (var inputY = 0; inputY < (int)Board.RasterSize.Height; ++inputY)
+                ushort address = 0;
+                var bytesPerScanLine = DisplayWidth >> 3;
+                for (var y = 0; y < DisplayHeight; ++y)
                 {
-                    if (inputY == 96)
+                    if (y == 96)
                     {
                         this.Motherboard.TriggerInterruptScanLine96();
                     }
 
                     prior = this.Motherboard.RunScanLine(prior);
 
-                    var address = (ushort)(bytesPerScanLine * inputY);
-                    var outputX = flip ? (int)Board.RasterSize.Height - inputY - 1 : inputY;
                     for (var byteX = 0; byteX < bytesPerScanLine; ++byteX)
                     {
                         var video = this.Motherboard.VRAM.Peek(address++);
                         for (var bit = 0; bit < 8; ++bit)
                         {
-                            var inputX = (byteX << 3) + bit;
-                            var outputY = flip ? inputX : (int)(Board.RasterSize.Width - inputX - 1);
-                            var outputPixel = outputX + (outputY * DisplayWidth);
+                            var x = (byteX << 3) + bit;
                             var mask = 1 << bit;
-                            var inputPixel = video & mask;
-                            var colourIndex = (int)ColourPalette.CalculateColour(outputX, outputY);
-                            var colour = inputPixel == 0 ? blackColour : this.palette.Colour(colourIndex);
-                            this.pixels[outputPixel] = colour;
+                            var pixel = video & mask;
+                            var colourIndex = (int)ColourPalette.CalculateColour(y, DisplayWidth - x - 1);
+                            var colour = pixel == 0 ? blackColour : this.palette.Colour(colourIndex);
+                            this.pixels[x + (y * DisplayWidth)] = colour;
                         }
                     }
                 }
@@ -203,7 +205,9 @@ namespace Invaders
                 this.Motherboard.TriggerInterruptScanLine224();
 
                 this.bitmapTexture.SetData(this.pixels);
-                this.spriteBatch.Draw(this.bitmapTexture, this.displayRectangle, this.palette.Colour(ColourPalette.ColourIndex.White));
+
+                var effect = flip ? this.flipped : this.unflipped;
+                this.spriteBatch.Draw(this.bitmapTexture, this.texturePosition, null, Color.White, ScreenRotation, this.textureOrigin, this.textureScale, effect, 0);
             }
             finally
             {
