@@ -24,6 +24,8 @@ namespace Invaders
         private readonly float textureScale = PixelSize;
         private readonly SpriteEffects flipped = SpriteEffects.FlipHorizontally | SpriteEffects.FlipVertically;
         private readonly SpriteEffects unflipped = SpriteEffects.None;
+        private readonly SoundEffects sounds = new SoundEffects();
+
         private SpriteBatch spriteBatch;
         private Texture2D bitmapTexture;
 
@@ -67,6 +69,9 @@ namespace Invaders
             this.ChangeResolution(DisplayHeight, DisplayWidth); // Note the reversed layout: -90 degree rotation of display
             this.bitmapTexture = new Texture2D(this.GraphicsDevice, DisplayWidth, DisplayHeight);
             this.CreateGelPixels();
+            this.Content.RootDirectory = Configuration.ContentRoot;
+            this.sounds.LoadContent(this.Content);
+            this.ConnectSoundEvents();
             this.Motherboard.Initialize();
             this.Motherboard.RaisePOWER();
         }
@@ -83,6 +88,48 @@ namespace Invaders
             this.DrawTexture();
             base.Draw(gameTime);
         }
+
+        private void ConnectSoundEvents()
+        {
+            this.Motherboard.UfoSound += this.Motherboard_UfoSound;
+            this.Motherboard.ShotSound += this.Motherboard_ShotSound;
+            this.Motherboard.PlayerDieSound += this.Motherboard_PlayerDieSound;
+            this.Motherboard.InvaderDieSound += this.Motherboard_InvaderDieSound;
+            this.Motherboard.ExtendSound += this.Motherboard_ExtendSound;
+
+            this.Motherboard.Walk1Sound += this.Motherboard_Walk1Sound;
+            this.Motherboard.Walk2Sound += this.Motherboard_Walk2Sound;
+            this.Motherboard.Walk3Sound += this.Motherboard_Walk3Sound;
+            this.Motherboard.Walk4Sound += this.Motherboard_Walk4Sound;
+            this.Motherboard.UfoDieSound += this.Motherboard_UfoDieSound;
+
+            this.Motherboard.EnableAmplifier += this.Motherboard_EnableAmplifier;
+            this.Motherboard.DisableAmplifier += this.Motherboard_DisableAmplifier;
+        }
+
+        private void Motherboard_DisableAmplifier(object sender, System.EventArgs e) => this.sounds.Disable();
+
+        private void Motherboard_EnableAmplifier(object sender, System.EventArgs e) => this.sounds.Enable();
+
+        private void Motherboard_UfoDieSound(object sender, System.EventArgs e) => this.sounds.PlayUfoDie();
+
+        private void Motherboard_Walk4Sound(object sender, System.EventArgs e) => this.sounds.PlayWalk4();
+
+        private void Motherboard_Walk3Sound(object sender, System.EventArgs e) => this.sounds.PlayWalk3();
+
+        private void Motherboard_Walk2Sound(object sender, System.EventArgs e) => this.sounds.PlayWalk2();
+
+        private void Motherboard_Walk1Sound(object sender, System.EventArgs e) => this.sounds.PlayWalk1();
+
+        private void Motherboard_ExtendSound(object sender, System.EventArgs e) => this.sounds.PlayExtend();
+
+        private void Motherboard_InvaderDieSound(object sender, System.EventArgs e) => this.sounds.PlayInvaderDie();
+
+        private void Motherboard_PlayerDieSound(object sender, System.EventArgs e) => this.sounds.PlayPlayerDie();
+
+        private void Motherboard_ShotSound(object sender, System.EventArgs e) => this.sounds.PlayShot();
+
+        private void Motherboard_UfoSound(object sender, System.EventArgs e) => this.sounds.PlayUfo();
 
         private void CheckKeyboard()
         {

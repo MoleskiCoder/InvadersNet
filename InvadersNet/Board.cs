@@ -177,12 +177,12 @@ namespace Invaders
 
         public override void Initialize()
         {
-            var romDirectory = Configuration.RomDirectory;
+            var romDirectory = Configuration.ContentRoot + Configuration.RomDirectory;
 
-            this.romE.Load(romDirectory + "/invaders.e");
-            this.romF.Load(romDirectory + "/invaders.f");
-            this.romG.Load(romDirectory + "/invaders.g");
-            this.romH.Load(romDirectory + "/invaders.h");
+            this.romE.Load(romDirectory + "invaders.e");
+            this.romF.Load(romDirectory + "invaders.f");
+            this.romG.Load(romDirectory + "invaders.g");
+            this.romH.Load(romDirectory + "invaders.h");
 
             this.ports.WritingPort += this.Ports_WritingPort_SpaceInvaders;
             this.ports.WrittenPort += this.Ports_WrittenPort_SpaceInvaders;
