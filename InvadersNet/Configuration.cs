@@ -28,7 +28,7 @@ namespace Invaders
 
         public static bool CocktailTable { get; set; } = false;
 
-        public static string ContentRoot { get; } = "../../../";
+        public static string ContentRoot { get; } = "../../";
 
         public static string RomDirectory { get; } = "roms/";
 

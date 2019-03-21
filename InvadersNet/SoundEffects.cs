@@ -25,10 +25,6 @@ namespace Invaders
 
         private bool disposed = false;
 
-        public SoundEffects()
-        {
-        }
-
         public void Dispose()
         {
             this.Dispose(true);
@@ -37,7 +33,6 @@ namespace Invaders
 
         public void LoadContent(ContentManager content)
         {
-            content.RootDirectory = Configuration.ContentRoot;
             this.ufoEffect = LoadEffect(content, "Ufo");
             this.shotEffect = LoadEffect(content, "Shot");
             this.playerDieEffect = LoadEffect(content, "BaseHit");
@@ -50,15 +45,9 @@ namespace Invaders
             this.walk4Effect = LoadEffect(content, "Walk4");
         }
 
-        public void Enable()
-        {
-            this.enabled = true;
-        }
+        public void Enable() => this.enabled = true;
 
-        public void Disable()
-        {
-            this.enabled = false;
-        }
+        public void Disable() => this.enabled = false;
 
         public void PlayUfo()
         {
@@ -140,7 +129,7 @@ namespace Invaders
             }
         }
 
-        protected void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
             if (!this.disposed)
             {
@@ -164,10 +153,7 @@ namespace Invaders
 
         private static SoundEffect LoadEffect(ContentManager content, string name)
         {
-            //ContentPipeline pipeline;
-
             var directory = Configuration.SoundDirectory;
-            //const string extension = ".wav";
             var path = directory + name;
             return content.Load<SoundEffect>(path);
         }
