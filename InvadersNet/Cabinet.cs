@@ -73,12 +73,16 @@ namespace Invaders
 
         protected override void Update(GameTime gameTime)
         {
-            this.RunFrame();
             this.CheckKeyboard();
+            this.cycles = this.DrawFrame(this.cycles);
             base.Update(gameTime);
         }
 
-        protected virtual void RunFrame() => this.cycles = this.DrawFrame(this.cycles);
+        protected override void Draw(GameTime gameTime)
+        {
+            this.DrawTexture();
+            base.Draw(gameTime);
+        }
 
         private void CheckKeyboard()
         {
@@ -183,7 +187,6 @@ namespace Invaders
             }
 
             this.bitmapTexture.SetData(this.pixels);
-            this.DrawTexture();
 
             this.Motherboard.TriggerInterruptScanLine224();
             return this.Motherboard.RunVerticalBlank(prior);
@@ -195,7 +198,7 @@ namespace Invaders
             var effect = flip ? this.flipped : this.unflipped;
 
             this.spriteBatch.Begin();
-            this.spriteBatch.Draw(this.bitmapTexture, this.texturePosition, null, Color.White * 0.5f, ScreenRotation, this.textureOrigin, this.textureScale, effect, 1);
+            this.spriteBatch.Draw(this.bitmapTexture, this.texturePosition, null, Color.White, ScreenRotation, this.textureOrigin, this.textureScale, effect, 1);
             this.spriteBatch.End();
         }
 
