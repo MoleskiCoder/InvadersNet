@@ -33,10 +33,14 @@ namespace Invaders
 
         private bool disposed = false;
 
-        public Cabinet() => this.graphics = new GraphicsDeviceManager(this)
+        public Cabinet()
         {
-            IsFullScreen = false,
-        };
+            this.graphics = new GraphicsDeviceManager(this)
+            {
+                IsFullScreen = false,
+            };
+            this.Content.RootDirectory = Configuration.ContentRoot;
+        }
 
         public Board Motherboard { get; } = new Board();
 
@@ -56,37 +60,44 @@ namespace Invaders
                     this.bitmapTexture?.Dispose();
                     this.spriteBatch?.Dispose();
                     this.graphics?.Dispose();
+                    this.sounds?.Dispose();
                 }
 
                 this.disposed = true;
             }
         }
 
-        protected override void LoadContent()
+        protected override void Initialize()
         {
-            this.spriteBatch = new SpriteBatch(this.GraphicsDevice);
-            this.palette.Load();
-            this.ChangeResolution(DisplayHeight, DisplayWidth); // Note the reversed layout: -90 degree rotation of display
-            this.bitmapTexture = new Texture2D(this.GraphicsDevice, DisplayWidth, DisplayHeight);
-            this.CreateGelPixels();
-            this.Content.RootDirectory = Configuration.ContentRoot;
-            this.sounds.LoadContent(this.Content);
-            this.ConnectSoundEvents();
+            base.Initialize();
             this.Motherboard.Initialize();
             this.Motherboard.RaisePOWER();
+            this.ConnectSoundEvents();
+            this.spriteBatch = new SpriteBatch(this.GraphicsDevice);
+            this.bitmapTexture = new Texture2D(this.GraphicsDevice, DisplayWidth, DisplayHeight);
+            this.ChangeResolution(DisplayHeight, DisplayWidth); // Note the reversed layout: -90 degree rotation of display
+            this.palette.Load();
+            this.CreateGelPixels();
+        }
+
+        protected override void LoadContent()
+        {
+            base.LoadContent();
+            this.sounds.LoadContent(this.Content);
+            this.Motherboard.LoadContent();
         }
 
         protected override void Update(GameTime gameTime)
         {
+            base.Update(gameTime);
             this.CheckKeyboard();
             this.cycles = this.DrawFrame(this.cycles);
-            base.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
         {
-            this.DisplayTexture();
             base.Draw(gameTime);
+            this.DisplayTexture();
         }
 
         private void ConnectSoundEvents()

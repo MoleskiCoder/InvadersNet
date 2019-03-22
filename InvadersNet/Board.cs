@@ -177,13 +177,6 @@ namespace Invaders
 
         public override void Initialize()
         {
-            var romDirectory = Configuration.ContentRoot + Configuration.RomDirectory;
-
-            this.romE.Load(romDirectory + "invaders.e");
-            this.romF.Load(romDirectory + "invaders.f");
-            this.romG.Load(romDirectory + "invaders.g");
-            this.romH.Load(romDirectory + "invaders.h");
-
             this.ports.WritingPort += this.Ports_WritingPort_SpaceInvaders;
             this.ports.WrittenPort += this.Ports_WrittenPort_SpaceInvaders;
             this.ports.ReadingPort += this.Ports_ReadingPort_SpaceInvaders;
@@ -192,6 +185,16 @@ namespace Invaders
             {
                 this.CPU.ExecutingInstruction += this.CPU_ExecutingInstruction_Debug;
             }
+        }
+
+        public void LoadContent()
+        {
+            var romDirectory = Configuration.ContentRoot + Configuration.RomDirectory;
+
+            this.romE.Load(romDirectory + "invaders.e");
+            this.romF.Load(romDirectory + "invaders.f");
+            this.romG.Load(romDirectory + "invaders.g");
+            this.romH.Load(romDirectory + "invaders.h");
         }
 
         public override void RaisePOWER()
