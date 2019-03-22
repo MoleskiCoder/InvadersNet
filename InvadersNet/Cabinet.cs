@@ -85,7 +85,7 @@ namespace Invaders
 
         protected override void Draw(GameTime gameTime)
         {
-            this.DrawTexture();
+            this.DisplayTexture();
             base.Draw(gameTime);
         }
 
@@ -230,7 +230,7 @@ namespace Invaders
                 }
 
                 prior = this.Motherboard.RunScanLine(prior);
-                this.PaintScanLine(y);
+                this.DrawScanLine(y);
             }
 
             this.bitmapTexture.SetData(this.pixels);
@@ -239,7 +239,7 @@ namespace Invaders
             return this.Motherboard.RunVerticalBlank(prior);
         }
 
-        private void DrawTexture()
+        private void DisplayTexture()
         {
             var flip = Configuration.CocktailTable && this.Motherboard.CocktailModeControl;
             var effect = flip ? this.flipped : this.unflipped;
@@ -249,7 +249,7 @@ namespace Invaders
             this.spriteBatch.End();
         }
 
-        private void PaintScanLine(int y)
+        private void DrawScanLine(int y)
         {
             var bytesPerScanLine = DisplayWidth >> 3;
             var address = (ushort)(y * bytesPerScanLine);
