@@ -49,85 +49,25 @@ namespace Invaders
 
         public void Disable() => this.enabled = false;
 
-        public void PlayUfo()
-        {
-            if (this.enabled)
-            {
-                this.ufoEffect.Play();
-            }
-        }
+        public void PlayUfo() => this.MaybePlayEffect(this.ufoEffect);
 
-        public void PlayShot()
-        {
-            if (this.enabled)
-            {
-                this.shotEffect.Play();
-            }
-        }
+        public void PlayShot() => this.MaybePlayEffect(this.shotEffect);
 
-        public void PlayUfoDie()
-        {
-            if (this.enabled)
-            {
-                this.ufoDieEffect.Play();
-            }
-        }
+        public void PlayUfoDie() => this.MaybePlayEffect(this.ufoDieEffect);
 
-        public void PlayPlayerDie()
-        {
-            if (this.enabled)
-            {
-                this.playerDieEffect.Play();
-            }
-        }
+        public void PlayPlayerDie() => this.MaybePlayEffect(this.playerDieEffect);
 
-        public void PlayInvaderDie()
-        {
-            if (this.enabled)
-            {
-                this.invaderDieEffect.Play();
-            }
-        }
+        public void PlayInvaderDie() => this.MaybePlayEffect(this.invaderDieEffect);
 
-        public void PlayExtend()
-        {
-            if (this.enabled)
-            {
-                this.extendEffect.Play();
-            }
-        }
+        public void PlayExtend() => this.MaybePlayEffect(this.extendEffect);
 
-        public void PlayWalk1()
-        {
-            if (this.enabled)
-            {
-                this.walk1Effect.Play();
-            }
-        }
+        public void PlayWalk1() => this.MaybePlayEffect(this.walk1Effect);
 
-        public void PlayWalk2()
-        {
-            if (this.enabled)
-            {
-                this.walk2Effect.Play();
-            }
-        }
+        public void PlayWalk2() => this.MaybePlayEffect(this.walk2Effect);
 
-        public void PlayWalk3()
-        {
-            if (this.enabled)
-            {
-                this.walk3Effect.Play();
-            }
-        }
+        public void PlayWalk3() => this.MaybePlayEffect(this.walk3Effect);
 
-        public void PlayWalk4()
-        {
-            if (this.enabled)
-            {
-                this.walk4Effect.Play();
-            }
-        }
+        public void PlayWalk4() => this.MaybePlayEffect(this.walk4Effect);
 
         protected virtual void Dispose(bool disposing)
         {
@@ -156,6 +96,14 @@ namespace Invaders
             var directory = Configuration.SoundDirectory;
             var path = directory + name;
             return content.Load<SoundEffect>(path);
+        }
+
+        private void MaybePlayEffect(SoundEffect effect)
+        {
+            if (this.enabled)
+            {
+                effect.Play();
+            }
         }
     }
 }
