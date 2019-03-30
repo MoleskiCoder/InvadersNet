@@ -244,18 +244,18 @@ namespace Invaders
                 this.DrawScanLine(y);
             }
 
-            this.bitmapTexture.SetData(this.pixels);
-
             this.Motherboard.TriggerInterruptScanLine224();
             return this.Motherboard.RunVerticalBlank(prior);
         }
 
         private void DisplayTexture()
         {
+            this.bitmapTexture.SetData(this.pixels);
+
             var flip = Configuration.CocktailTable && this.Motherboard.CocktailModeControl;
             var effect = flip ? this.flipped : this.unflipped;
 
-            this.spriteBatch.Begin();
+            this.spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.PointClamp);
             this.spriteBatch.Draw(this.bitmapTexture, this.texturePosition, null, Color.White, ScreenRotation, this.textureOrigin, this.textureScale, effect, 1);
             this.spriteBatch.End();
         }
