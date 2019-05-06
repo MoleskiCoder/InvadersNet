@@ -214,13 +214,13 @@ namespace Invaders
         public void TriggerInterruptScanLine224()
         {
             this.Data = 0xd7;  // RST 2
-            this.CPU.INT().Lower();
+            this.CPU.INT.Lower();
         }
 
         public void TriggerInterruptScanLine96()
         {
             this.Data = 0xcf;  // RST 1
-            this.CPU.INT().Lower();
+            this.CPU.INT.Lower();
         }
 
         public int RunScanLine(int prior) => this.CPU.Run(CyclesPerScanLine - prior);
