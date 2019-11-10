@@ -4,6 +4,7 @@
 
 namespace Invaders
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using Microsoft.Xna.Framework;
@@ -18,7 +19,8 @@ namespace Invaders
         private readonly ColourPalette palette = new ColourPalette();
         private readonly Color[] pixels = new Color[DisplayWidth * DisplayHeight];
         private readonly Color[] gel = new Color[DisplayWidth * DisplayHeight];
-        private readonly List<Keys> pressed = new List<Keys>();
+        private readonly List<Keys> pressedKeys = new List<Keys>();
+        private readonly Dictionary<PlayerIndex, GamePadButtons> pressedButtons = new Dictionary<PlayerIndex, GamePadButtons>();
         private readonly Vector2 texturePosition = new Vector2(0, DisplayWidth * PixelSize);
         private readonly Vector2 textureOrigin = new Vector2(0, 0);
         private readonly float textureScale = PixelSize;
@@ -78,6 +80,11 @@ namespace Invaders
             this.ChangeResolution(DisplayHeight, DisplayWidth); // Note the reversed layout: -90 degree rotation of display
             this.palette.Load();
             this.CreateGelPixels();
+
+            this.pressedButtons[PlayerIndex.One] = new GamePadButtons();
+            this.pressedButtons[PlayerIndex.Two] = new GamePadButtons();
+
+            this.TargetElapsedTime = TimeSpan.FromSeconds(1.0 / Configuration.FramesPerSecond);
         }
 
         protected override void LoadContent()
@@ -90,14 +97,22 @@ namespace Invaders
         protected override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
+            this.CheckGamePads();
             this.CheckKeyboard();
             this.cycles = this.DrawFrame(this.cycles);
+            this.bitmapTexture.SetData(this.pixels);
         }
 
         protected override void Draw(GameTime gameTime)
         {
             base.Draw(gameTime);
             this.DisplayTexture();
+        }
+
+        protected override void OnExiting(object sender, EventArgs args)
+        {
+            base.OnExiting(sender, args);
+            this.Motherboard.LowerPOWER();
         }
 
         private void ConnectSoundEvents()
@@ -142,19 +157,133 @@ namespace Invaders
 
         private void Motherboard_UfoSound(object sender, System.EventArgs e) => this.sounds.PlayUfo();
 
+        private void CheckGamePads()
+        {
+            this.MaybeHandleGamePadOne();
+            this.MaybeHandleGamePadTwo();
+        }
+
+        private void MaybeHandleGamePadOne()
+        {
+            var capabilities = GamePad.GetCapabilities(PlayerIndex.One);
+            if (capabilities.IsConnected && (capabilities.GamePadType == GamePadType.GamePad))
+            {
+                this.HandleGamePadOne();
+            }
+        }
+
+        private void HandleGamePadOne()
+        {
+            var state = GamePad.GetState(PlayerIndex.One);
+            var current = state.Buttons;
+            var previous = this.pressedButtons[PlayerIndex.One];
+
+            // Fire button
+
+            if (current.A == ButtonState.Pressed && (previous.A == ButtonState.Released))
+            {
+                this.Motherboard.PressShoot1P();
+            }
+
+            if (current.A == ButtonState.Released && (previous.A == ButtonState.Pressed))
+            {
+                this.Motherboard.ReleaseShoot1P();
+            }
+
+            // Left button
+
+            if (current.LeftShoulder == ButtonState.Pressed && (previous.LeftShoulder == ButtonState.Released))
+            {
+                this.Motherboard.PressLeft1P();
+            }
+
+            if (current.LeftShoulder == ButtonState.Released && (previous.LeftShoulder == ButtonState.Pressed))
+            {
+                this.Motherboard.ReleaseLeft1P();
+            }
+
+            // Right button
+
+            if (current.RightShoulder == ButtonState.Pressed && (previous.RightShoulder == ButtonState.Released))
+            {
+                this.Motherboard.PressRight1P();
+            }
+
+            if (current.RightShoulder == ButtonState.Released && (previous.RightShoulder == ButtonState.Pressed))
+            {
+                this.Motherboard.ReleaseRight1P();
+            }
+
+            this.pressedButtons[PlayerIndex.One] = current;
+        }
+
+        private void MaybeHandleGamePadTwo()
+        {
+            var capabilities = GamePad.GetCapabilities(PlayerIndex.Two);
+            if (capabilities.IsConnected && (capabilities.GamePadType == GamePadType.GamePad))
+            {
+                this.HandleGamePadTwo();
+            }
+        }
+
+        private void HandleGamePadTwo()
+        {
+            var state = GamePad.GetState(PlayerIndex.Two);
+            var current = state.Buttons;
+            var previous = this.pressedButtons[PlayerIndex.Two];
+
+            // Fire button
+
+            if (current.A == ButtonState.Pressed && (previous.A == ButtonState.Released))
+            {
+                this.Motherboard.PressShoot2P();
+            }
+
+            if (current.A == ButtonState.Released && (previous.A == ButtonState.Pressed))
+            {
+                this.Motherboard.ReleaseShoot2P();
+            }
+
+            // Left button
+
+            if (current.LeftShoulder == ButtonState.Pressed && (previous.LeftShoulder == ButtonState.Released))
+            {
+                this.Motherboard.PressLeft2P();
+            }
+
+            if (current.LeftShoulder == ButtonState.Released && (previous.LeftShoulder == ButtonState.Pressed))
+            {
+                this.Motherboard.ReleaseLeft2P();
+            }
+
+            // Right button
+
+            if (current.RightShoulder == ButtonState.Pressed && (previous.RightShoulder == ButtonState.Released))
+            {
+                this.Motherboard.PressRight2P();
+            }
+
+            if (current.RightShoulder == ButtonState.Released && (previous.RightShoulder == ButtonState.Pressed))
+            {
+                this.Motherboard.ReleaseRight2P();
+            }
+
+            this.pressedButtons[PlayerIndex.Two] = current;
+        }
+
         private void CheckKeyboard()
         {
             var state = Keyboard.GetState();
             var current = new HashSet<Keys>(state.GetPressedKeys());
 
-            var newlyReleased = this.pressed.Except(current);
+            var newlyReleased = this.pressedKeys.Except(current);
             this.UpdateReleasedKeys(newlyReleased);
 
-            var newlyPressed = current.Except(this.pressed);
+            var newlyPressed = current.Except(this.pressedKeys);
             this.UpdatePressedKeys(newlyPressed);
 
-            this.pressed.Clear();
-            this.pressed.AddRange(current);
+            this.pressedKeys.Clear();
+            this.pressedKeys.AddRange(current);
         }
 
         private void UpdatePressedKeys(IEnumerable<Keys> keys)
@@ -250,8 +379,6 @@ namespace Invaders
 
         private void DisplayTexture()
         {
-            this.bitmapTexture.SetData(this.pixels);
-
             var flip = Configuration.CocktailTable && this.Motherboard.CocktailModeControl;
             var effect = flip ? this.flipped : this.unflipped;
 
