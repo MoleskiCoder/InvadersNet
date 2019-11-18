@@ -31,8 +31,6 @@ namespace Invaders
         private SpriteBatch spriteBatch;
         private Texture2D bitmapTexture;
 
-        private int cycles = 0;
-
         private bool disposed = false;
 
         public Cabinet()
@@ -99,7 +97,7 @@ namespace Invaders
             base.Update(gameTime);
             this.CheckGamePads();
             this.CheckKeyboard();
-            this.cycles = this.DrawFrame(this.cycles);
+            this.DrawFrame();
             this.bitmapTexture.SetData(this.pixels);
         }
 
@@ -360,8 +358,10 @@ namespace Invaders
             }
         }
 
-        private int DrawFrame(int prior)
+        private void DrawFrame()
         {
+            this.Motherboard.RunVerticalBlank();
+
             for (var y = 0; y < DisplayHeight; ++y)
             {
                 if (y == 96)
@@ -369,12 +369,11 @@ namespace Invaders
                     this.Motherboard.TriggerInterruptScanLine96();
                 }
 
-                prior = this.Motherboard.RunScanLine(prior);
+                this.Motherboard.RunScanLine();
                 this.DrawScanLine(y);
             }
 
             this.Motherboard.TriggerInterruptScanLine224();
-            return this.Motherboard.RunVerticalBlank(prior);
         }
 
         private void DisplayTexture()

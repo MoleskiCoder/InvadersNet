@@ -54,6 +54,8 @@ namespace Invaders
         private byte preSound1 = 0;
         private byte preSound2 = 0;
 
+        private int allowed = 0;
+
         public Board()
         {
             this.CPU = new Intel8080(this, this.ports);
@@ -223,17 +225,11 @@ namespace Invaders
             this.CPU.INT.Lower();
         }
 
-        public int RunScanLine(int prior) => this.CPU.Run(CyclesPerScanLine - prior);
+        public void RunScanLine() => this.RunCycles(CyclesPerScanLine);
 
-        public int RunRasterScan(int prior) => this.CPU.Run(Configuration.CyclesPerRasterScan - prior);
+        public void RunRasterScan() => this.RunCycles(Configuration.CyclesPerRasterScan);
 
-        public int RunVerticalBlank(int prior) => this.CPU.Run(Configuration.CyclesPerVerticalBlank - prior);
-
-        public int RunFrame(int prior)
-        {
-            var remaining = this.RunRasterScan(prior);
-            return this.RunVerticalBlank(remaining);
-        }
+        public void RunVerticalBlank() => this.RunCycles(Configuration.CyclesPerVerticalBlank);
 
         public void PressCredit() => this.credit = 1;
 
@@ -437,5 +433,12 @@ namespace Invaders
         }
 
         private void CPU_ExecutingInstruction_Debug(object sender, System.EventArgs e) => System.Console.Error.WriteLine($"{EightBit.Disassembler.State(this.CPU)}\t{this.disassembler.Disassemble(this.CPU)}");
+
+        private void RunCycles(int suggested)
+        {
+            this.allowed += suggested;
+            var taken = this.CPU.Run(this.allowed);
+            this.allowed -= taken;
+        }
     }
 }
